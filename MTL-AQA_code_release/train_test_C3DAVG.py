@@ -318,7 +318,7 @@ def main():
 
 if __name__ == '__main__':
     #save string
-    ckpt_str = f'{load_ckpt:02d}'
+    # ckpt_str = f'{load_ckpt:02d}'
 
     # loading the altered C3D backbone (ie C3D upto before fc-6)
     model_CNN = C3D_altered()
