@@ -10,6 +10,31 @@
 <p align="center"> <img src="mtlaqa_concept.png?raw=true" alt="mtl_net" width="400"/> </p>
 
 
+# Installation Instructions
+This code was setup on the UNLV ECE AI server with the following environment.
+
+Create a conda environment with Python 3.7. Install the conda packages with the following commands:
+
+```
+conda create --name mlt-aqa python=3.7
+conda activate mtl-aqa
+
+conda install pillow numpy scipy
+conda install -c hcc cudatoolkit=10.2
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=10.2 -c pytorch
+```
+
+
+If you are having any errors in running the code, then you will have to update numpy through pip:
+
+```
+pip install numpy --upgrade
+```
+
+[Download the Sports-1M pretrained C3D weights.](http://imagelab.ing.unimore.it/files/c3d_pytorch/c3d.pickle) Save the pickle file under 
+
+
+
 This repository contains MTL-AQA dataset + code introduced in the above paper. If you find this dataset or code useful, please consider citing:
 ```
 @inproceedings{mtlaqa,
