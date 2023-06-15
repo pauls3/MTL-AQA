@@ -62,7 +62,7 @@ test_batch_size = 5
 
 model_ckpt_interval = 100 # in epochs
 ckpt_dir = 'train_full_450/'
-load_ckpt = 0
+load_ckpt = -1
 
 base_learning_rate = 0.0001
 
