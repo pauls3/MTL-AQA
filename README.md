@@ -182,7 +182,7 @@ You can also use multiple GPUs if needed (e.g., bigger batch size/model) with by
 CUDA_VISIBLE_DEVICES="4,6,7"
 ```
 
-### Training C3D Model
+### Training the C3D Model
 Use the following command to train a C3D model from scratch on the AI server:
 ```
 CUDA_VISIBLE_DEVICES="<[0-7]>" python3 train_test_C3DAVG.py
