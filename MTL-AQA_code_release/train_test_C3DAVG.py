@@ -317,43 +317,26 @@ def main():
                 save_model(model_caption, 'best_model_caption', '', ckpt_dir)
 
 if __name__ == '__main__':
-    #save string
-    ckpt_str = f'{load_ckpt:02d}'
-
-    # loading the altered C3D backbone (ie C3D upto before fc-6)
+    model_CNN_pretrained_dict = torch.load('c3d.pickle')
     model_CNN = C3D_altered()
-    if load_ckpt > -1:
-        filesave = ckpt_dir + 'model_CNN_' + ckpt_str + '.pth'; 
-        model_CNN.load_state_dict(torch.load(filesave))
-    else:
-        model_CNN_pretrained_dict = torch.load(c3d_base)
-        model_CNN_dict = model_CNN.state_dict()
-        model_CNN_pretrained_dict = {k: v for k, v in model_CNN_pretrained_dict.items() if k in model_CNN_dict}
-        model_CNN_dict.update(model_CNN_pretrained_dict)
-        model_CNN.load_state_dict(model_CNN_dict)
+    model_CNN_dict = model_CNN.state_dict()
+    model_CNN_pretrained_dict = {k: v for k, v in model_CNN_pretrained_dict.items() if k in model_CNN_dict}
+    model_CNN_dict.update(model_CNN_pretrained_dict)
+    model_CNN.load_state_dict(model_CNN_dict)
     model_CNN = model_CNN.cuda()
 
     # loading our fc6 layer
     model_my_fc6 = my_fc6()
-    if load_ckpt > -1:
-        filesave = ckpt_dir + 'model_my_fc6_' + ckpt_str + '.pth';
-        model_my_fc6.load_state_dict(torch.load(filesave))
     model_my_fc6.cuda()
 
     # loading our score regressor
     model_score_regressor = score_regressor()
-    if load_ckpt > -1:
-        filesave = ckpt_dir + 'model_score_regressor_' + ckpt_str + '.pth';
-        model_score_regressor.load_state_dict(torch.load(filesave))
     model_score_regressor = model_score_regressor.cuda()
     print('Using Final Score Loss')
 
     if with_dive_classification:
         # loading our dive classifier
         model_dive_classifier = dive_classifier()
-        if load_ckpt > -1:
-            filesave = ckpt_dir + 'model_dive_classifier_' + ckpt_str + '.pth';
-            model_dive_classifier.load_state_dict(torch.load(filesave))
         model_dive_classifier = model_dive_classifier.cuda()
         print('Using Dive Classification Loss')
 
@@ -363,9 +346,6 @@ if __name__ == '__main__':
                                   caption_lstm_dim_word, caption_lstm_dim_vid,
                                   rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
                                   rnn_dropout_p=caption_lstm_dropout)
-        if load_ckpt > -1:
-            filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
-            model_caption.load_state_dict(torch.load(filesave))
         model_caption = model_caption.cuda()
         print('Using Captioning Loss')
 
