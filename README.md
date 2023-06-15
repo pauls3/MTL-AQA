@@ -50,7 +50,7 @@ This will create an instance of the terminal that you can go back on after loggi
 screen -r aqa
 ```
 
-If you forget what your screen name was, use the following command to list all of your screens:
+If you forgot what your screen name was, use the following command to list all of your screens:
 ```
 screen -r
 ```
