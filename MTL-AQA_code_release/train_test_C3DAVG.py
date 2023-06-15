@@ -25,13 +25,18 @@ from models.C3DAVG.S2VTModel import S2VTModel
 from opts import *
 from utils import utils_1
 import numpy as np
+from datetime import datetime
 
 torch.manual_seed(randomseed); torch.cuda.manual_seed_all(randomseed); random.seed(randomseed); np.random.seed(randomseed)
 torch.backends.cudnn.deterministic=True
 
 
 def save_model(model, model_name, epoch, path):
-    model_path = os.path.join(path, '%s_%d.pth' % (model_name, epoch))
+    if epoch == '':
+        model_path = os.path.join(path, '%s.pth' % (model_name))
+    else:
+        model_path = os.path.join(path, '%s_%02d.pth' % (model_name, epoch))
+    print('model save path = ' + model_path)
     torch.save(model.state_dict(), model_path)
 
 
@@ -113,6 +118,18 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             print(' ')
         iteration += 1
 
+        d = dict()
+        d['epoch'] = epoch
+        d['iter'] = iteration-1
+        d['loss'] = loss.item()
+        d['loss_fs'] = loss_final_score.item()
+        if with_dive_classification:
+            d['loss_cls'] = loss_cls.item()
+        if with_caption:
+            d['loss_cap'] = loss_caption.item()
+
+        return d
+
 
 def test_phase(test_dataloader):
     print('In testphase...')
@@ -192,9 +209,23 @@ def test_phase(test_dataloader):
                   ' SS_no: ', ss_no_accu, ' TW_no: ', tw_no_accu)
 
         rho, p = stats.spearmanr(pred_scores, true_scores)
-        print('Predicted scores: ', pred_scores)
-        print('True scores: ', true_scores)
-        print('Correlation: ', rho)
+        mse = ((np.subtract(pred_scores, true_scores) * final_score_std) ** 2).mean()
+        #print('Predicted scores: ', pred_scores)
+        #print('True scores: ', true_scores)
+        print('Correlation: ', rho, '   |   MSE: ', mse)
+
+        d = dict()
+        d['rho'] = rho
+        d['mse'] = mse
+        d['acc_pos'] = position_accu
+        d['acc_arm'] = armstand_accu
+        d['acc_rot'] = rot_type_accu
+        d['acc_ss'] = ss_no_accu
+        d['acc_tw'] = tw_no_accu
+        #d['s_pred'] = pred_scores
+        #d['s_true'] = true_scores
+
+        return d
 
 
 def main():
@@ -209,8 +240,14 @@ def main():
         parameters_2_optimize = parameters_2_optimize + list(model_caption.parameters())
         parameters_2_optimize_named = parameters_2_optimize_named + list(model_caption.named_parameters())
 
+    #save string
+    ckpt_str = f'{load_ckpt:02d}'
+
     optimizer = optim.Adam(parameters_2_optimize, lr=0.0001)
-    print('Parameters that will be learnt: ', parameters_2_optimize_named)
+    if load_ckpt > -1:
+        filesave = ckpt_dir + 'optimizer_' + ckpt_str + '.pth';
+        optimizer.load_state_dict(torch.load(filesave))
+    # print('Parameters that will be learnt: ', parameters_2_optimize_named)
 
     criterions = {}
     criterion_final_score = nn.MSELoss()
@@ -233,49 +270,90 @@ def main():
     print('Training set size: ', len(train_dataloader)*train_batch_size,
           ';    Test set size: ', len(test_dataloader)*test_batch_size)
 
+    #save stats each epoch
+    now = datetime.now()
+    date_time = now.strftime("%y%m%d_%H%M%S")
+    file_train = ckpt_dir + '/' + date_time + '_stats_train_' + ckpt_str + '.txt'
+    file_test = ckpt_dir + '/' + date_time + '_stats_test_' + ckpt_str + '.txt'
+    os.makedirs(ckpt_dir, exist_ok=True)
+    rho_best = 0
+
     # actual training, testing loops
-    for epoch in range(100):
-        saving_dir = '...'
+    for epoch in range(load_ckpt+1, 100):
+        # saving_dir = '...'
         print('-------------------------------------------------------------------------------------------------------')
         for param_group in optimizer.param_groups:
             print('Current learning rate: ', param_group['lr'])
 
-        train_phase(train_dataloader, optimizer, criterions, epoch)
-        test_phase(test_dataloader)
+        dtrain = train_phase(train_dataloader, optimizer, criterions, epoch)
+        dtest = test_phase(test_dataloader)
 
-        if (epoch+1) % model_ckpt_interval == 0: # save models every 5 epochs
-            save_model(model_CNN, 'model_CNN', epoch, saving_dir)
-            save_model(model_my_fc6, 'model_my_fc6', epoch, saving_dir)
-            save_model(model_score_regressor, 'model_score_regressor', epoch, saving_dir)
+        #save stats each epoch
+        with open(file_train,'a') as data_train:
+            data_train.write(str(dtrain)+'\n')
+        with open(file_test, 'a') as data_test:
+            data_test.write(str(dtest)+'\n')
+
+        if (epoch+1) % model_ckpt_interval == 0: # save models occasionally
+            save_model(model_CNN, 'model_CNN', epoch, ckpt_dir)
+            save_model(model_my_fc6, 'model_my_fc6', epoch, ckpt_dir)
+            save_model(model_score_regressor, 'model_score_regressor', epoch, ckpt_dir)
+            save_model(optimizer, 'optimizer', epoch, ckpt_dir)
             if with_dive_classification:
-                save_model(model_dive_classifier, 'model_dive_classifier', epoch, saving_dir)
+                save_model(model_dive_classifier, 'model_dive_classifier', epoch, ckpt_dir)
             if with_caption:
-                save_model(model_caption, 'model_caption', epoch, saving_dir)
+                save_model(model_caption, 'model_caption', epoch, ckpt_dir)
 
-
+        #save best model
+        if dtest['rho'] > rho_best:
+            rho_best = dtest['rho']
+            save_model(model_CNN, 'best_model_CNN', '', ckpt_dir)
+            save_model(model_my_fc6, 'best_model_my_fc6', '', ckpt_dir)
+            save_model(model_score_regressor, 'best_model_score_regressor', '', ckpt_dir)
+            save_model(optimizer, 'best_optimizer', '', ckpt_dir)
+            if with_dive_classification:
+                save_model(model_dive_classifier, 'best_model_dive_classifier', '', ckpt_dir)
+            if with_caption:
+                save_model(model_caption, 'best_model_caption', '', ckpt_dir)
 
 if __name__ == '__main__':
+    #save string
+    ckpt_str = f'{load_ckpt:02d}'
+
     # loading the altered C3D backbone (ie C3D upto before fc-6)
-    model_CNN_pretrained_dict = torch.load('c3d.pickle')
     model_CNN = C3D_altered()
-    model_CNN_dict = model_CNN.state_dict()
-    model_CNN_pretrained_dict = {k: v for k, v in model_CNN_pretrained_dict.items() if k in model_CNN_dict}
-    model_CNN_dict.update(model_CNN_pretrained_dict)
-    model_CNN.load_state_dict(model_CNN_dict)
+    if load_ckpt > -1:
+        filesave = ckpt_dir + 'model_CNN_' + ckpt_str + '.pth'; 
+        model_CNN.load_state_dict(torch.load(filesave))
+    else:
+        model_CNN_pretrained_dict = torch.load(c3d_base)
+        model_CNN_dict = model_CNN.state_dict()
+        model_CNN_pretrained_dict = {k: v for k, v in model_CNN_pretrained_dict.items() if k in model_CNN_dict}
+        model_CNN_dict.update(model_CNN_pretrained_dict)
+        model_CNN.load_state_dict(model_CNN_dict)
     model_CNN = model_CNN.cuda()
 
     # loading our fc6 layer
     model_my_fc6 = my_fc6()
+    if load_ckpt > -1:
+        filesave = ckpt_dir + 'model_my_fc6_' + ckpt_str + '.pth';
+        model_my_fc6.load_state_dict(torch.load(filesave))
     model_my_fc6.cuda()
 
     # loading our score regressor
     model_score_regressor = score_regressor()
+    if load_ckpt > -1:
+        filesave = ckpt_dir + 'model_score_regressor_' + ckpt_str + '.pth';
+        model_score_regressor.load_state_dict(torch.load(filesave))
     model_score_regressor = model_score_regressor.cuda()
     print('Using Final Score Loss')
 
     if with_dive_classification:
         # loading our dive classifier
         model_dive_classifier = dive_classifier()
+        if load_ckpt > -1:
+            filesave = ckpt_dir + 'model_dive_classifier_' + ckpt_str + '.pth';
+            model_dive_classifier.load_state_dict(torch.load(filesave))
         model_dive_classifier = model_dive_classifier.cuda()
         print('Using Dive Classification Loss')
 
@@ -285,6 +363,9 @@ if __name__ == '__main__':
                                   caption_lstm_dim_word, caption_lstm_dim_vid,
                                   rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
                                   rnn_dropout_p=caption_lstm_dropout)
+        if load_ckpt > -1:
+            filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
+            model_caption.load_state_dict(torch.load(filesave))
         model_caption = model_caption.cuda()
         print('Using Captioning Loss')
 
