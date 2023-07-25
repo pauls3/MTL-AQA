@@ -21,7 +21,8 @@ from models.C3DAVG.C3D_altered import C3D_altered
 from models.C3DAVG.my_fc6 import my_fc6
 from models.C3DAVG.score_regressor import score_regressor
 from models.C3DAVG.dive_classifier import dive_classifier
-from models.C3DAVG.S2VTModel import S2VTModel
+# from models.C3DAVG.S2VTModel import S2VTModel
+from models.clip import clip
 from opts import *
 from utils import utils_1
 import numpy as np
@@ -359,10 +360,13 @@ if __name__ == '__main__':
 
     if with_caption:
         # loading our caption model
-        model_caption = S2VTModel(vocab_size, max_cap_len, caption_lstm_dim_hidden,
-                                  caption_lstm_dim_word, caption_lstm_dim_vid,
-                                  rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
-                                  rnn_dropout_p=caption_lstm_dropout)
+        # model_caption = S2VTModel(vocab_size, max_cap_len, caption_lstm_dim_hidden,
+        #                           caption_lstm_dim_word, caption_lstm_dim_vid,
+        #                           rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
+        #                           rnn_dropout_p=caption_lstm_dropout)
+
+        model_caption, = clip.load(clip_pretrained_model, device="cuda")
+
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
             model_caption.load_state_dict(torch.load(filesave))
