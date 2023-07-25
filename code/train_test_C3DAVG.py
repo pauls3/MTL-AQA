@@ -370,7 +370,7 @@ if __name__ == '__main__':
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
             model_caption.load_state_dict(torch.load(filesave))
-        model_caption = model_caption.cuda()
+        # model_caption = model_caption.cuda()
         print('Using Captioning Loss')
 
 
