@@ -17,7 +17,7 @@ clip_pretrained_model = "../pretrained_models/clip/ViT-B-16.pt"
 randomseed = 0
 
 # directory containing dataset annotation files; this anno_n_splits_dir make the full path
-dataset_dir = '../dataset_release/Ready_2_Use/'
+dataset_dir = '../dataset/Ready_2_Use/'
 
 # directory tp store train/test split lists and annotations
 anno_n_splits_dir = dataset_dir + 'smaller_training_sets/size_450/'
@@ -36,7 +36,7 @@ input_resize = 171,128
 temporal_aug_min = -3; temporal_aug_max = 3
 
 # C3D base model (use full path)
-c3d_base = 'c3d.pickle'
+c3d_base = '../pretrained_models/C3D/c3d.pickle'
 
 
 # score std
