@@ -365,7 +365,7 @@ if __name__ == '__main__':
         #                           rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
         #                           rnn_dropout_p=caption_lstm_dropout)
 
-        model_caption = clip.load(clip_pretrained_model)
+        model_caption, _ = clip.load(clip_pretrained_model)
 
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
