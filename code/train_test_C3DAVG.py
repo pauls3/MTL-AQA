@@ -73,8 +73,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         batch_size, C, frames, H, W = video.shape
         clip_feats = torch.Tensor([]).cuda()
 
-        for i in np.arange(0, frames - 17, 16):
-            clip = video[:, :, i:i + 16, :, :]
+        for i in np.arange(0, frames - temporal_stride + 1, temporal_stride): # for i in np.arange(0, frames - 17, 16):
+            clip = video[:, :, i:i + temporal_stride, :, :] # clip = video[:, :, i:i + 16, :, :]
             clip_feats_temp = model_CNN(clip)
             clip_feats_temp.unsqueeze_(0)
             clip_feats_temp.transpose_(0, 1)
@@ -161,8 +161,8 @@ def test_phase(test_dataloader):
             batch_size, C, frames, H, W = video.shape
             clip_feats = torch.Tensor([]).cuda()
 
-            for i in np.arange(0, frames - 17, 16):
-                clip = video[:, :, i:i + 16, :, :]
+            for i in np.arange(0, frames - temporal_stride + 1, temporal_stride): # for i in np.arange(0, frames - 17, 16):
+                clip = video[:, :, i:i + temporal_stride, :, :] # clip = video[:, :, i:i + 16, :, :]
                 clip_feats_temp = model_CNN(clip)
                 clip_feats_temp.unsqueeze_(0)
                 clip_feats_temp.transpose_(0, 1)
