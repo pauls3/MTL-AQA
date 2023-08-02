@@ -98,7 +98,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             # print(clip_feats_avg_reshape_pad.shape)
             transform = T.ToPILImage()
             clips_feats_avg_re_img = transform(clip_feats_avg_reshape)
-            preprocessed = preprocess(clips_feats_avg_re_img.unsqueeze(0).cuda())
+            preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
