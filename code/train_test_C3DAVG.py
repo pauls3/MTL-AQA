@@ -29,6 +29,7 @@ import numpy as np
 from datetime import datetime
 from PIL import Image
 import torchvision.transforms as T
+from transformers import CLIPTextConfig, CLIPVisionConfig, CLIPTextModelWithProjection, CLIPVisionModelWithProjection
 
 
 torch.manual_seed(randomseed); torch.cuda.manual_seed_all(randomseed); random.seed(randomseed); np.random.seed(randomseed)
@@ -100,6 +101,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             clips_feats_avg_re_img = transform(clip_feats_avg_reshape)
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             print(true_captions.shape)
+            print(true_captions)
             seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
@@ -385,5 +387,28 @@ if __name__ == '__main__':
         # model_caption = model_caption.cuda()
         print('Using Captioning Loss')
 
+
+        # PROJECTION_DIM = 512
+        # padding_max_length = 100
+
+        # textConfig = CLIPTextConfig.from_pretrained(clip_pretrained_model)
+        # textConfig.projection_dim = PROJECTION_DIM
+        # textConfig.max_positioon_embeddings = padding_max_length
+
+        # visionConfig = CLIPVisionConfig.from_pretrained(clip_pretrained_model)
+        # visionConfig.projection_dim = PROJECTION_DIM
+
+        # clipTextModel = CLIPTextModelWithProjection.from_pretrained(
+        #     pretrained_model_name_or_path=clip_pretrained_model,
+        #     config=textConfig,
+        #     ignore_mismatched_sizes=True
+        # )
+
+        # clipVisionModel = CLIPVisionModelWithProjection.from_pretrained(
+        #     pretrained_model_name_or_path=clip_pretrained_model,
+        #     config=visionConfig,
+        #     ignore_mismatched_sizes=True
+        # )
+        
 
     main()
