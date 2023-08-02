@@ -102,9 +102,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             
             print(true_captions.shape)
-            true_captions_pad = nn.functional.pad(true_captions, pad=(0,8))
+            true_captions_pad = torch.reshape(true_captions, (4, 75))
+            true_captions_pad_re = nn.functional.pad(true_captions_pad, pad=(0,2))
             print(true_captions_pad.shape)
-            true_captions_pad_re = torch.reshape(true_captions_pad, (4, 77))
             seq_probs, _ = model_caption(preprocessed, true_captions_pad_re) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
