@@ -27,6 +27,9 @@ from opts import *
 from utils import utils_1
 import numpy as np
 from datetime import datetime
+from PIL import Image
+import torchvision.transforms as T
+
 
 torch.manual_seed(randomseed); torch.cuda.manual_seed_all(randomseed); random.seed(randomseed); np.random.seed(randomseed)
 torch.backends.cudnn.deterministic=True
@@ -89,11 +92,13 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
              pred_tw_no) = model_dive_classifier(sample_feats_fc6)
         if with_caption:
             # preprocessed = preprocess(clip_feats_avg.unsqueeze(0).cuda())
-            clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 4, 8, 256))
+            clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 64, 128))
             # print(clip_feats_avg_reshape.shape)
             # clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 1024-4, 1024-8, 512), mode='constant', value=0)
             # print(clip_feats_avg_reshape_pad.shape)
-            preprocessed = clip_feats_avg_reshape.unsqueeze(0).cuda()
+            transform = T.ToPILImage()
+            clips_feats_avg_re_img = transform(clip_feats_avg_reshape)
+            preprocessed = preprocess(clips_feats_avg_re_img.unsqueeze(0).cuda())
             seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
