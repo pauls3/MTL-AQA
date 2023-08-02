@@ -100,10 +100,11 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             transform = T.ToPILImage()
             clips_feats_avg_re_img = transform(clip_feats_avg_reshape)
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
-
-            # print(true_captions.shape)
-            true_captions_re = torch.reshape(true_captions, (4, 75))
-            seq_probs, _ = model_caption(preprocessed, true_captions_re) # model_caption(clip_feats, true_captions, 'train')
+            
+            print(true_captions.shape)
+            print(true_captions_mask)
+            text_tokenized = clip.tokenize()
+            seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
                             + penalty_final_score(pred_final_score, true_final_score))
