@@ -103,6 +103,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             
             print(true_captions.shape)
             true_captions_pad = nn.functional.pad(true_captions, pad=(0,8))
+            print(true_captions_pad.shape)
             true_captions_pad_re = torch.reshape(true_captions_pad, (4, 77))
             seq_probs, _ = model_caption(preprocessed, true_captions_pad_re) # model_caption(clip_feats, true_captions, 'train')
 
