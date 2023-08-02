@@ -102,6 +102,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             
             print(true_captions.shape)
+            true_captions_mask_pad = torch.reshape(true_captions_mask, (4, 75))
+            true_captions_mask_pad_re = nn.functional.pad(true_captions_mask_pad, pad=(0,2))
             true_captions_pad = torch.reshape(true_captions, (4, 75))
             true_captions_pad_re = nn.functional.pad(true_captions_pad, pad=(0,2))
             print(true_captions_pad.shape)
@@ -120,7 +122,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_cls = loss_position + loss_armstand + loss_rot_type + loss_ss_no + loss_tw_no
             loss += loss_cls
         if with_caption:
-            loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
+            loss_caption = criterion_caption(seq_probs, true_captions_pad_re[:, 1:], true_captions_mask_pad_re[:, 1:]) # criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
             loss += loss_caption*0.01
 
         optimizer.zero_grad()
