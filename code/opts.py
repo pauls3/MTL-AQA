@@ -70,4 +70,4 @@ load_ckpt = -1
 
 base_learning_rate = 0.0001
 
-temporal_stride = 6 # 16
+temporal_stride = 16
