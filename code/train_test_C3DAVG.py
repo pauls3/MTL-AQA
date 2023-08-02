@@ -89,7 +89,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
              pred_tw_no) = model_dive_classifier(sample_feats_fc6)
         if with_caption:
             # preprocessed = preprocess(clip_feats_avg.unsqueeze(0).cuda())
-            clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 4, 8, 1024))
+            clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 4, 8, 512))
             # print(clip_feats_avg_reshape.shape)
             # clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 1024-4, 1024-8, 512), mode='constant', value=0)
             # print(clip_feats_avg_reshape_pad.shape)
