@@ -88,12 +88,13 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             (pred_position, pred_armstand, pred_rot_type, pred_ss_no,
              pred_tw_no) = model_dive_classifier(sample_feats_fc6)
         if with_caption:
-            preprocessed = preprocess(clip_feats_avg.unsqueeze(0).cuda())
+            # preprocessed = preprocess(clip_feats_avg.unsqueeze(0).cuda())
             # clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 8, 1024))
             # print(clip_feats_avg_reshape.shape)
             # clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 1024-8), mode='constant', value=0)
             # print(clip_feats_avg_reshape_pad.shape)
-            seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
+            print(clip_feats_avg.shape)
+            seq_probs, _ = model_caption(clip_feats_avg, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
                             + penalty_final_score(pred_final_score, true_final_score))
