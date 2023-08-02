@@ -11,7 +11,7 @@
 
 
 # path to clip pretrained model
-clip_pretrained_model = "../pretrained_models/clip/RN50.pt"
+clip_pretrained_model = "../pretrained_models/clip/ViT-B-16.pt"
 
 # declaring random seed
 randomseed = 0
