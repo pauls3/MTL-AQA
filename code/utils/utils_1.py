@@ -62,8 +62,7 @@ class LanguageModelCriterion(nn.Module):
         batch_size = logits.shape[0]
         target = target[:, :logits.shape[1]]
         mask = mask[:, :logits.shape[1]]
-        print(logits.shape)
-        logits = logits.contiguous().view(-1, logits.shape[2])
+        logits = logits.contiguous().view(-1, logits.shape[1]) # logits.contiguous().view(-1, logits.shape[2]) 
         target = target.contiguous().view(-1)
         mask = mask.contiguous().view(-1)
         loss = self.loss_fn(logits, target)
