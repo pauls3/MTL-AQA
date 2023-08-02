@@ -88,11 +88,12 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             (pred_position, pred_armstand, pred_rot_type, pred_ss_no,
              pred_tw_no) = model_dive_classifier(sample_feats_fc6)
         if with_caption:
-            clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 8, 1024))
-            print(clip_feats_avg_reshape.shape)
-            clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 1024-8), mode='constant', value=0)
-            print(clip_feats_avg_reshape_pad.shape)
-            seq_probs, _ = model_caption(clip_feats_avg_reshape_pad, true_captions) # model_caption(clip_feats, true_captions, 'train')
+            preprocessed = preprocess(clip_feats_avg.unsqueeze(0).cuda())
+            # clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 8, 1024))
+            # print(clip_feats_avg_reshape.shape)
+            # clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 1024-8), mode='constant', value=0)
+            # print(clip_feats_avg_reshape_pad.shape)
+            seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
                             + penalty_final_score(pred_final_score, true_final_score))
@@ -369,7 +370,7 @@ if __name__ == '__main__':
         #                           rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
         #                           rnn_dropout_p=caption_lstm_dropout)
 
-        model_caption, _ = clip.load(clip_pretrained_model)
+        model_caption, preprocess = clip.load(clip_pretrained_model)
 
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
