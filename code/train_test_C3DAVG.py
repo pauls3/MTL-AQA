@@ -90,7 +90,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         if with_caption:
             clip_feats_avg_reshape = torch.reshape(clip_feats_avg, (3, 16, 512))
             print(clip_feats_avg_reshape.shape)
-            clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 768-16, 768-512), mode='constant', value=0)
+            clip_feats_avg_reshape_pad = nn.functional.pad(clip_feats_avg_reshape, pad=(0, 0, 0, 768-16, 0, 768-512), mode='constant', value=0)
             print(clip_feats_avg_reshape_pad.shape)
             seq_probs, _ = model_caption(clip_feats_avg_reshape_pad, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
