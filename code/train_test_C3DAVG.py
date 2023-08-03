@@ -102,12 +102,14 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             
             print(true_captions.shape)
-            true_captions_mask_pad = torch.reshape(true_captions_mask, (4, 75))
-            true_captions_mask_pad_re = nn.functional.pad(true_captions_mask_pad, pad=(0,2))
-            true_captions_pad = torch.reshape(true_captions, (4, 75))
-            true_captions_pad_re = nn.functional.pad(true_captions_pad, pad=(0,2))
-            print(true_captions_pad.shape)
-            seq_probs, _ = model_caption(preprocessed, true_captions_pad_re) # model_caption(clip_feats, true_captions, 'train')
+            true_captions = torch.narrow(true_captions, 0, 77)
+            true_captions_mask = torch.narrow(true_captions_mask, 0, 77)
+            # true_captions_mask_pad = torch.reshape(true_captions_mask, (4, 75))
+            # true_captions_mask_pad_re = nn.functional.pad(true_captions_mask_pad, pad=(0,2))
+            # true_captions_pad = torch.reshape(true_captions, (4, 75))
+            # true_captions_pad_re = nn.functional.pad(true_captions_pad, pad=(0,2))
+            # print(true_captions_pad.shape)
+            seq_probs, _ = model_caption(preprocessed, true_captions) # model_caption(clip_feats, true_captions, 'train')
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
                             + penalty_final_score(pred_final_score, true_final_score))
@@ -122,7 +124,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_cls = loss_position + loss_armstand + loss_rot_type + loss_ss_no + loss_tw_no
             loss += loss_cls
         if with_caption:
-            loss_caption = criterion_caption(seq_probs, true_captions_pad_re[:, 1:], true_captions_mask_pad_re[:, 1:]) # criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
+            loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:]) # criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
             loss += loss_caption*0.01
 
         optimizer.zero_grad()
