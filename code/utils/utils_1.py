@@ -62,11 +62,12 @@ class LanguageModelCriterion(nn.Module):
         print(logits.shape)
         batch_size = logits.shape[0]
         target = target[:, :logits.shape[1]]
+        print(target.shape)
         mask = mask[:, :logits.shape[1]]
         logits = logits.contiguous().view(-1, logits.shape[1]) # logits.contiguous().view(-1, logits.shape[2]) 
+        print(target.shape)
         target = target.contiguous().view(-1)
         mask = mask.contiguous().view(-1)
-        print(logits.shape)
         print(target.shape)
         loss = self.loss_fn(logits, target)
         output = torch.sum(loss * mask) / batch_size
