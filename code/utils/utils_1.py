@@ -59,7 +59,7 @@ class LanguageModelCriterion(nn.Module):
 
 
     def forward(self, logits, target, mask):
-        print(logits.shape)
+        # print(logits.shape)
         batch_size = logits.shape[0]
         target = target[:, :logits.shape[1]]
         print(target.shape)
@@ -70,7 +70,9 @@ class LanguageModelCriterion(nn.Module):
         mask = mask.contiguous().view(-1)
         print(target.shape)
 
-        logits = logits.repeat(3, 1)
+        print(logits)
+
+        # logits = logits.repeat(3, 1)
         logits = logits.contiguous().view(-1)
 
         loss = self.loss_fn(logits, target)
