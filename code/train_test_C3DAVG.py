@@ -125,6 +125,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_cls = loss_position + loss_armstand + loss_rot_type + loss_ss_no + loss_tw_no
             loss += loss_cls
         if with_caption:
+            print(seq_probs.shape)
             loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:]) # criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
             loss += loss_caption*0.01
 
