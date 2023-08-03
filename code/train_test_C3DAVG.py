@@ -102,8 +102,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             preprocessed = preprocess(clips_feats_avg_re_img).unsqueeze(0).cuda()
             
             print(true_captions.shape)
-            true_captions = torch.narrow(true_captions, 0, 77)
-            true_captions_mask = torch.narrow(true_captions_mask, 0, 77)
+            true_captions = torch.narrow(true_captions, 0, 1, 77)
+            true_captions_mask = torch.narrow(true_captions_mask, 0, 1, 77)
+            print(true_captions.shape)
             # true_captions_mask_pad = torch.reshape(true_captions_mask, (4, 75))
             # true_captions_mask_pad_re = nn.functional.pad(true_captions_mask_pad, pad=(0,2))
             # true_captions_pad = torch.reshape(true_captions, (4, 75))
