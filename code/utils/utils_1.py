@@ -59,6 +59,7 @@ class LanguageModelCriterion(nn.Module):
 
 
     def forward(self, logits, target, mask):
+        print(logits.shape)
         batch_size = logits.shape[0]
         target = target[:, :logits.shape[1]]
         mask = mask[:, :logits.shape[1]]
