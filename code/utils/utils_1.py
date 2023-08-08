@@ -59,22 +59,12 @@ class LanguageModelCriterion(nn.Module):
 
 
     def forward(self, logits, target, mask):
-        # print(logits.shape)
         batch_size = logits.shape[0]
         target = target[:, :logits.shape[1]]
-        print(target.shape)
         mask = mask[:, :logits.shape[1]]
-        logits = logits.contiguous().view(-1, logits.shape[1]) # logits.contiguous().view(-1, logits.shape[2]) 
-        print(target.shape)
+        logits = logits.contiguous().view(-1, logits.shape[2])
         target = target.contiguous().view(-1)
         mask = mask.contiguous().view(-1)
-        print(target.shape)
-
-        print(logits)
-
-        # logits = logits.repeat(3, 1)
-        logits = logits.contiguous().view(-1)
-
         loss = self.loss_fn(logits, target)
         output = torch.sum(loss * mask) / batch_size
         return output
