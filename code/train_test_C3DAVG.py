@@ -69,9 +69,10 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         # true_final_score_temp = true_final_score.type(torch.StringTensor).cuda()
         true_final_score_temp = torch.squeeze(true_final_score)
         tfs_list = true_final_score_temp.tolist()
-        tfs_str = []
-        for ii in tfs_list:
-            tfs_str.append(str(ii))
+        # tfs_str = []
+        # for ii in tfs_list:
+        #     tfs_str.append(str(ii))
+        tfs_str = ['{:.4f}'.format(ii) for ii in tfs_list]
         print(tfs_str)
         true_final_score_clip = CLIP.tokenize(tfs_str).cuda()
         # true_final_score_clip = torch.squeeze(true_final_score_clip).cuda()
