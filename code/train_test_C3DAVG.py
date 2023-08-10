@@ -27,6 +27,9 @@ from opts import *
 from utils import utils_1
 import numpy as np
 from datetime import datetime
+from PIL import Image
+import torchvision.transforms as T
+
 
 torch.manual_seed(randomseed); torch.cuda.manual_seed_all(randomseed); random.seed(randomseed); np.random.seed(randomseed)
 torch.backends.cudnn.deterministic=True
@@ -92,7 +95,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         if with_caption:
             seq_probs, _ = model_caption(clip_feats, true_captions, 'train')
 
-            clip_preprocessed = preprocess(seq_probs).unsqueeze(0).cuda()
+            transform = T.ToPILImage()
+            seq_probs_img = transform(seq_probs)
+            clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
             clip_probs, _ = model_clip(clip_preprocessed, true_final_score)
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
