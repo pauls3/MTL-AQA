@@ -67,8 +67,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
 
         tfs_np = true_final_score.cpu().numpy()
         tfs_np = tfs_np * 10000
-        tfs_tensor = torch.tensor(tfs_np)
-        true_final_score_clip = tfs_tensor.astype(int)
+        tfs_tensor = tfs_np.astype(int)
+        true_final_score_clip = torch.tensor(tfs_np)
 
         if with_dive_classification:
             true_postion = data['label_position'].cuda()
