@@ -64,7 +64,10 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
     iteration = 0
     for data in train_dataloader:
         true_final_score = data['label_final_score'].unsqueeze_(1).type(torch.FloatTensor).cuda()
-        true_final_score_clip = int(data['label_final_score'].unsqueeze_(1) * 10000)
+
+        tfs_np = true_final_score.numpy()
+
+        true_final_score_clip = int(true_final_score * 10000)
         if with_dive_classification:
             true_postion = data['label_position'].cuda()
             true_armstand = data['label_armstand'].cuda()
