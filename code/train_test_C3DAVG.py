@@ -137,6 +137,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss += loss_caption*0.01
 
             # true_final_score_clip = torch.reshape(true_final_score_clip, (1,3))
+            print(clip_probs.size())
+            print(true_final_score_clip.size())
             loss_clip = criterion_clip(clip_probs, true_final_score_clip)
             loss += loss_clip*0.01
 
