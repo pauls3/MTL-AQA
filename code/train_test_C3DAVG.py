@@ -22,7 +22,7 @@ from models.C3DAVG.my_fc6 import my_fc6
 from models.C3DAVG.score_regressor import score_regressor
 from models.C3DAVG.dive_classifier import dive_classifier
 from models.C3DAVG.S2VTModel import S2VTModel
-from models.clip import clip
+from models.clip import clip as CLIP
 from opts import *
 from utils import utils_1
 import numpy as np
@@ -67,7 +67,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
 
         # tfs_0 = torch.mul(true_final_score, 10000).cuda()
         true_final_score_temp = true_final_score.type(torch.IntTensor).cuda()
-        true_final_score_clip = clip.tokenize(true_final_score_temp).cuda()
+        true_final_score_clip = CLIP.tokenize(true_final_score_temp).cuda()
         # true_final_score_clip = torch.squeeze(true_final_score_clip).cuda()
         # true_final_score_clip = torch.reshape(true_final_score_clip, (3,1))
 
@@ -402,7 +402,7 @@ if __name__ == '__main__':
                                   rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
                                   rnn_dropout_p=caption_lstm_dropout)
         
-        model_clip, preprocess = clip.load(clip_pretrained_model)
+        model_clip, preprocess = CLIP.load(clip_pretrained_model)
 
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
