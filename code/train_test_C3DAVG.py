@@ -98,6 +98,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             transform = T.ToPILImage()
             seq_probs_img = transform(seq_probs)
             clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
+            print(true_final_score)
             clip_probs, _ = model_clip(clip_preprocessed, true_final_score)
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
