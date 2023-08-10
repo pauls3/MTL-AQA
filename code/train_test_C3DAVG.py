@@ -67,7 +67,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
 
         # tfs_0 = torch.mul(true_final_score, 10000).cuda()
         true_final_score_clip = true_final_score.type(torch.IntTensor).cuda()
-
+        true_final_score_clip = torch.reshape(true_final_score_clip, (3,1))
 
         # tfs_np = true_final_score.cpu().numpy()
         # tfs_np = tfs_np * 10000
