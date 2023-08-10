@@ -73,7 +73,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         # for ii in tfs_list:
         #     tfs_str.append(str(ii))
         tfs_str = ['{:.4f}'.format(ii) for ii in tfs_list]
-        print(tfs_str)
+        # print(tfs_str)
         true_final_score_clip = CLIP.tokenize(tfs_str).cuda()
         # true_final_score_clip = torch.squeeze(true_final_score_clip).cuda()
         # true_final_score_clip = torch.reshape(true_final_score_clip, (3,1))
@@ -117,7 +117,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             transform = T.ToPILImage()
             seq_probs_img = transform(seq_probs)
             clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
-            print(true_final_score_clip)
+            # print(true_final_score_clip)
             clip_probs, _ = model_clip(clip_preprocessed, true_final_score_clip)
 
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
@@ -136,7 +136,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
             loss += loss_caption*0.01
 
-            true_final_score_clip = torch.reshape(true_final_score_clip, (1,3))
+            # true_final_score_clip = torch.reshape(true_final_score_clip, (1,3))
             loss_clip = criterion_clip(clip_probs, true_final_score_clip)
             loss += loss_clip*0.01
 
