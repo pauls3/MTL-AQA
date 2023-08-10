@@ -140,7 +140,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             print(clip_probs.size())
             print(clip_probs)
             print(true_final_score_clip.size())
-            loss_clip = criterion_clip(clip_probs, true_final_score_clip)
+            loss_clip = criterion_clip(clip_probs, true_final_score_temp)
             loss += loss_clip*0.01
 
         optimizer.zero_grad()
