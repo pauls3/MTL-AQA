@@ -66,7 +66,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         true_final_score = data['label_final_score'].unsqueeze_(1).type(torch.FloatTensor).cuda()
 
         # tfs_0 = torch.mul(true_final_score, 10000).cuda()
-        true_final_score_clip = true_final_score.type(torch.IntTensor).cuda()
+        true_final_score_temp = true_final_score.type(torch.IntTensor).cuda()
+        true_final_score_clip = clip.tokenize(true_final_score_temp).cuda()
         # true_final_score_clip = torch.squeeze(true_final_score_clip).cuda()
         # true_final_score_clip = torch.reshape(true_final_score_clip, (3,1))
 
