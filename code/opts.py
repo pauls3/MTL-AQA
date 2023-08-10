@@ -35,7 +35,7 @@ input_resize = 171,128
 temporal_aug_min = -3; temporal_aug_max = 3
 
 # C3D base model (use full path)
-c3d_base = 'c3d.pickle'
+c3d_base = '../pretrained_models/C3D/c3d.pickle'
 
 
 # score std
