@@ -47,6 +47,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         criterion_dive_classifier = criterions['criterion_dive_classifier']
     if with_caption:
         criterion_caption = criterions['criterion_caption']
+        criterion_clip = criterions['criterion_clip']
 
     model_CNN.train()
     model_my_fc6.train()
@@ -55,6 +56,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         model_dive_classifier.train()
     if with_caption:
         model_caption.train()
+        model_clip.train()
 
     iteration = 0
     for data in train_dataloader:
@@ -90,6 +92,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         if with_caption:
             seq_probs, _ = model_caption(clip_feats, true_captions, 'train')
 
+            clip_preprocessed = preprocess(seq_probs).unsqueeze(0).cuda()
+            clip_probs, _ = model_clip(clip_preprocessed, true_final_score)
+
         loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
                             + penalty_final_score(pred_final_score, true_final_score))
         loss = 0
@@ -106,6 +111,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
             loss += loss_caption*0.01
 
+            loss_clip = criterion_clip(clip_probs, true_final_score)
+            loss += loss_clip*0.01
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -116,6 +124,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
                   print(' Cls Loss: ', loss_cls, end="")
             if with_caption:
                   print(' Cap Loss: ', loss_caption, end="")
+                  print(' Clip Loss: ', loss_clip, end="")
             print(' ')
         iteration += 1
 
@@ -128,6 +137,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             d['loss_cls'] = loss_cls.item()
         if with_caption:
             d['loss_cap'] = loss_caption.item()
+            d['loss_clip'] = loss_clip.item()
 
         return d
 
@@ -147,6 +157,7 @@ def test_phase(test_dataloader):
             model_dive_classifier.eval()
         if with_caption:
             model_caption.eval()
+            model_clip.eval()
 
         for data in test_dataloader:
             true_scores.extend(data['label_final_score'].data.numpy())
@@ -241,6 +252,9 @@ def main():
         parameters_2_optimize = parameters_2_optimize + list(model_caption.parameters())
         parameters_2_optimize_named = parameters_2_optimize_named + list(model_caption.named_parameters())
 
+        parameters_2_optimize = parameters_2_optimize + list(model_clip.parameters())
+        parameters_2_optimize_named = parameters_2_optimize_named + list(model_clip.named_parameters())
+
     #save string
     ckpt_str = f'{load_ckpt:02d}'
 
@@ -261,6 +275,7 @@ def main():
     if with_caption:
         criterion_caption = utils_1.LanguageModelCriterion()
         criterions['criterion_caption'] = criterion_caption
+        criterions['criterion_clip'] = nn.L1Loss()
 
     train_dataset = VideoDataset('train')
     test_dataset = VideoDataset('test')
@@ -304,6 +319,7 @@ def main():
                 save_model(model_dive_classifier, 'model_dive_classifier', epoch, ckpt_dir)
             if with_caption:
                 save_model(model_caption, 'model_caption', epoch, ckpt_dir)
+                save_model(model_clip, 'model_clip', epoch, ckpt_dir)
 
         #save best model
         if dtest['rho'] > rho_best:
@@ -316,6 +332,7 @@ def main():
                 save_model(model_dive_classifier, 'best_model_dive_classifier', '', ckpt_dir)
             if with_caption:
                 save_model(model_caption, 'best_model_caption', '', ckpt_dir)
+                save_model(model_clip, 'best_model_clip', epoch, ckpt_dir)
 
 if __name__ == '__main__':
     #save string
@@ -366,7 +383,7 @@ if __name__ == '__main__':
                                   rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
                                   rnn_dropout_p=caption_lstm_dropout)
         
-        clip_model, preprocess = clip.load(clip_pretrained_model)
+        model_clip, preprocess = clip.load(clip_pretrained_model)
 
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
