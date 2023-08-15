@@ -139,9 +139,10 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             # true_final_score_clip = torch.reshape(true_final_score_clip, (1,3))
             clip_loss_gt = torch.squeeze(true_final_score_temp)
             clip_probs_sqz = torch.squeeze(clip_probs)
-            print(clip_probs_sqz.size())
-            print(clip_loss_gt.size())
+            # print(clip_probs_sqz.size())
+            # print(clip_loss_gt.size())
             loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt)
+            print('Clip loss:\t', loss_clip)
             loss += loss_clip*0.01
 
         optimizer.zero_grad()

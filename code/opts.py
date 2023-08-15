@@ -52,7 +52,7 @@ caption_lstm_dim_vid = 8192#8192# C3D-AVG: 8192; MSCADC: 1200
 caption_lstm_cell_type = 'gru'
 caption_lstm_num_layers = 2
 caption_lstm_dropout = 0.5
-caption_lstm_lr = 0.0001
+caption_lstm_lr = 0.00001
 
 # task 2 include
 with_dive_classification = True
