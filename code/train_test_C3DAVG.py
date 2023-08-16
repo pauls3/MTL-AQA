@@ -118,7 +118,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             seq_probs_img = transform(seq_probs)
             clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
 
-            nan_mask = torch.isnan(clip_preprocessed)
+            nan_mask = torch.isnan(clip_preprocessed).tolist()
             print('NAN found:\t', nan_mask.count(True))
 
             # print(true_final_score_clip)
