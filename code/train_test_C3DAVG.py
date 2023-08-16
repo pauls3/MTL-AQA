@@ -424,6 +424,7 @@ if __name__ == '__main__':
                                   rnn_dropout_p=caption_lstm_dropout)
         
         model_clip, preprocess = CLIP.load(clip_pretrained_model)
+        model_clip = model_clip.float()
 
         if load_ckpt > -1:
             filesave = ckpt_dir + 'model_caption_' + ckpt_str + '.pth';
