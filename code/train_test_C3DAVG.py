@@ -423,7 +423,7 @@ if __name__ == '__main__':
                                   rnn_cell=caption_lstm_cell_type, n_layers=caption_lstm_num_layers,
                                   rnn_dropout_p=caption_lstm_dropout)
         
-        model_clip, preprocess = CLIP.load(clip_pretrained_model)
+        model_clip, preprocess = CLIP.load(clip_pretrained_model, jit=False)
         model_clip = model_clip.float()
 
         if load_ckpt > -1:
