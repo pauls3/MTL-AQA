@@ -117,6 +117,10 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             transform = T.ToPILImage()
             seq_probs_img = transform(seq_probs)
             clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
+
+            nan_mask = torch.isnan(clip_preprocessed)
+            print('NAN found:\t', nan_mask.count(True))
+
             # print(true_final_score_clip)
             clip_probs, _ = model_clip(clip_preprocessed, true_final_score_clip)
 
