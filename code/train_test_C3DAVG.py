@@ -118,8 +118,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             seq_probs_img = transform(seq_probs)
             clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
 
-            nan_mask = torch.isnan(clip_preprocessed).tolist()
-            print('NAN found:\t', nan_mask.count(True))
+            # nan_mask = torch.isnan(clip_preprocessed).tolist()
+            # print('NAN found:\t', nan_mask.count(True))
 
             # print(true_final_score_clip)
             clip_probs, _ = model_clip(clip_preprocessed, true_final_score_clip)
@@ -152,7 +152,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt)
             print('Clip gt:\t', clip_loss_gt)
             print('Clip pred:\t', clip_probs_sqz)
-            loss += loss_clip*0.01
+            # loss += loss_clip*0.01
+            loss += loss_clip
 
         optimizer.zero_grad()
         loss.backward()
