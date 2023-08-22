@@ -299,7 +299,7 @@ def main():
     #save string
     ckpt_str = f'{load_ckpt:02d}'
 
-    optimizer = optim.Adam(parameters_2_optimize, lr=0.0001)
+    optimizer = optim.Adam(parameters_2_optimize, lr=0.00001)
     if load_ckpt > -1:
         filesave = ckpt_dir + 'optimizer_' + ckpt_str + '.pth';
         optimizer.load_state_dict(torch.load(filesave))
@@ -336,7 +336,7 @@ def main():
     rho_best = 0
 
     # actual training, testing loops
-    for epoch in range(load_ckpt+1, 100):
+    for epoch in range(load_ckpt+1, 1000):
         # saving_dir = '...'
         print('-------------------------------------------------------------------------------------------------------')
         for param_group in optimizer.param_groups:
