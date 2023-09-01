@@ -60,7 +60,7 @@ with_caption = True
 
 max_epochs = 100
 
-train_batch_size = 1
+train_batch_size = 4
 test_batch_size = 5
 
 model_ckpt_interval = 100 # in epochs
