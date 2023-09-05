@@ -61,6 +61,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         model_caption.train()
         model_clip.train()
 
+    batch_section = train_batch_size / 3
+
     batch_iter = 0
     iteration = 0
     loss = 0
@@ -139,9 +141,9 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
 
         batch_iter += 1
 
-        if batch_iter >= train_batch_size:
+        if batch_iter >= batch_section:
             batch_iter = 0
-            loss = loss / train_batch_size
+            loss = loss / batch_section
 
             optimizer.zero_grad()
             loss.backward()
