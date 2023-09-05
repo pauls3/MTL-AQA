@@ -58,9 +58,9 @@ caption_lstm_lr = 0.00001
 with_dive_classification = True
 with_caption = True
 
-max_epochs = 100
+max_epochs = 200
 
-train_batch_size = 4
+train_batch_size = 9
 test_batch_size = 5
 
 model_ckpt_interval = 100 # in epochs

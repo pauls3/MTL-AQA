@@ -61,124 +61,114 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
         model_caption.train()
         model_clip.train()
 
+    batch_iter = 0
     iteration = 0
+    loss = 0
     for data in train_dataloader:
-        true_final_score = data['label_final_score'].unsqueeze_(1).type(torch.FloatTensor).cuda()
+        if batch_iter < train_batch_size:
+            true_final_score = data['label_final_score'].unsqueeze_(1).type(torch.FloatTensor).cuda()
 
-        # tfs_0 = torch.mul(true_final_score, 10000).cuda()
-        # true_final_score_temp = true_final_score.type(torch.StringTensor).cuda()
-        true_final_score_temp = torch.squeeze(true_final_score)
-        tfs_list = true_final_score_temp.tolist()
-        # tfs_str = []
-        # for ii in tfs_list:
-        #     tfs_str.append(str(ii))
-        tfs_str = ['{:.1f}'.format(ii) for ii in tfs_list]
-        print(tfs_str)
-        true_final_score_clip = CLIP.tokenize(tfs_str).cuda()
-        # true_final_score_clip = torch.squeeze(true_final_score_clip).cuda()
-        # true_final_score_clip = torch.reshape(true_final_score_clip, (3,1))
+            true_final_score_temp = torch.squeeze(true_final_score)
+            tfs_list = true_final_score_temp.tolist()
 
-        # tfs_np = true_final_score.cpu().numpy()
-        # tfs_np = tfs_np * 10000
-        # tfs_tensor = tfs_np.astype(int)
-        # true_final_score_clip = torch.tensor(tfs_tensor)
+            tfs_str = ['{:.1f}'.format(ii) for ii in tfs_list]
+            print(tfs_str)
+            true_final_score_clip = CLIP.tokenize(tfs_str).cuda()
 
-        if with_dive_classification:
-            true_postion = data['label_position'].cuda()
-            true_armstand = data['label_armstand'].cuda()
-            true_rot_type = data['label_rot_type'].cuda()
-            true_ss_no = data['label_ss_no'].cuda()
-            true_tw_no = data['label_tw_no'].cuda()
-        if with_caption:
-            true_captions = data['label_captions'].cuda()
-            true_captions_mask = data['label_captions_mask'].cuda()
-        video = data['video'].transpose_(1, 2).cuda()
-
-        batch_size, C, frames, H, W = video.shape
-        clip_feats = torch.Tensor([]).cuda()
-
-        for i in np.arange(0, frames - 17, 16):
-            clip = video[:, :, i:i + 16, :, :]
-            clip_feats_temp = model_CNN(clip)
-            clip_feats_temp.unsqueeze_(0)
-            clip_feats_temp.transpose_(0, 1)
-            clip_feats = torch.cat((clip_feats, clip_feats_temp), 1)
-        clip_feats_avg = clip_feats.mean(1)
-
-        sample_feats_fc6 = model_my_fc6(clip_feats_avg)
-
-        pred_final_score = model_score_regressor(sample_feats_fc6)
-        if with_dive_classification:
-            (pred_position, pred_armstand, pred_rot_type, pred_ss_no,
-             pred_tw_no) = model_dive_classifier(sample_feats_fc6)
-        if with_caption:
-            seq_probs, _ = model_caption(clip_feats, true_captions, 'train')
-
-            transform = T.ToPILImage()
-            seq_probs_img = transform(seq_probs)
-            clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
-
-            # nan_mask = torch.isnan(clip_preprocessed).tolist()
-            # print('NAN found:\t', nan_mask.count(True))
-
-            # print(true_final_score_clip)
-            clip_probs, _ = model_clip(clip_preprocessed, true_final_score_clip)
-
-        loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
-                            + penalty_final_score(pred_final_score, true_final_score))
-        loss = 0
-        loss += loss_final_score
-        if with_dive_classification:
-            loss_position = criterion_dive_classifier(pred_position, true_postion)
-            loss_armstand = criterion_dive_classifier(pred_armstand, true_armstand)
-            loss_rot_type = criterion_dive_classifier(pred_rot_type, true_rot_type)
-            loss_ss_no = criterion_dive_classifier(pred_ss_no, true_ss_no)
-            loss_tw_no = criterion_dive_classifier(pred_tw_no, true_tw_no)
-            loss_cls = loss_position + loss_armstand + loss_rot_type + loss_ss_no + loss_tw_no
-            loss += loss_cls
-        if with_caption:
-            loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
-            loss += loss_caption*0.01
-
-            # true_final_score_clip = torch.reshape(true_final_score_clip, (1,3))
-
-            clip_loss_tmp = [float(ii) for ii in tfs_str]
-            clip_loss_gt = torch.FloatTensor(clip_loss_tmp).cuda()
-
-            # clip_loss_gt = torch.squeeze(true_final_score_temp)
-            clip_probs_sqz = torch.squeeze(clip_probs)
-            # print(clip_probs_sqz.size())
-            # print(clip_loss_gt.size())
-            loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt) * 100
-            print('Clip gt:\t', clip_loss_gt)
-            print('Clip pred:\t', clip_probs_sqz)
-            # loss += loss_clip*0.01
-            loss += loss_clip
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        if iteration % 20 == 0:
-            print('Epoch: ', epoch, ' Iter: ', iteration, ' Loss: ', loss, ' FS Loss: ', loss_final_score, end="")
             if with_dive_classification:
-                  print(' Cls Loss: ', loss_cls, end="")
+                true_postion = data['label_position'].cuda()
+                true_armstand = data['label_armstand'].cuda()
+                true_rot_type = data['label_rot_type'].cuda()
+                true_ss_no = data['label_ss_no'].cuda()
+                true_tw_no = data['label_tw_no'].cuda()
             if with_caption:
-                  print(' Cap Loss: ', loss_caption, end="")
-                  print(' Clip Loss: ', loss_clip, end="")
-            print(' ')
-        iteration += 1
+                true_captions = data['label_captions'].cuda()
+                true_captions_mask = data['label_captions_mask'].cuda()
+            video = data['video'].transpose_(1, 2).cuda()
 
-        d = dict()
-        d['epoch'] = epoch
-        d['iter'] = iteration-1
-        d['loss'] = loss.item()
-        d['loss_fs'] = loss_final_score.item()
-        if with_dive_classification:
-            d['loss_cls'] = loss_cls.item()
-        if with_caption:
-            d['loss_cap'] = loss_caption.item()
-            d['loss_clip'] = loss_clip.item()
+            batch_size, C, frames, H, W = video.shape
+            clip_feats = torch.Tensor([]).cuda()
+
+            for i in np.arange(0, frames - 17, 16):
+                clip = video[:, :, i:i + 16, :, :]
+                clip_feats_temp = model_CNN(clip)
+                clip_feats_temp.unsqueeze_(0)
+                clip_feats_temp.transpose_(0, 1)
+                clip_feats = torch.cat((clip_feats, clip_feats_temp), 1)
+            clip_feats_avg = clip_feats.mean(1)
+
+            sample_feats_fc6 = model_my_fc6(clip_feats_avg)
+
+            pred_final_score = model_score_regressor(sample_feats_fc6)
+            if with_dive_classification:
+                (pred_position, pred_armstand, pred_rot_type, pred_ss_no,
+                pred_tw_no) = model_dive_classifier(sample_feats_fc6)
+            if with_caption:
+                seq_probs, _ = model_caption(clip_feats, true_captions, 'train')
+
+                transform = T.ToPILImage()
+                seq_probs_img = transform(seq_probs)
+                clip_preprocessed = preprocess(seq_probs_img).unsqueeze(0).cuda()
+                clip_probs, _ = model_clip(clip_preprocessed, true_final_score_clip)
+
+            loss_final_score = (criterion_final_score(pred_final_score, true_final_score)
+                                + penalty_final_score(pred_final_score, true_final_score))
+            # loss = 0
+            loss += loss_final_score
+            if with_dive_classification:
+                loss_position = criterion_dive_classifier(pred_position, true_postion)
+                loss_armstand = criterion_dive_classifier(pred_armstand, true_armstand)
+                loss_rot_type = criterion_dive_classifier(pred_rot_type, true_rot_type)
+                loss_ss_no = criterion_dive_classifier(pred_ss_no, true_ss_no)
+                loss_tw_no = criterion_dive_classifier(pred_tw_no, true_tw_no)
+                loss_cls = loss_position + loss_armstand + loss_rot_type + loss_ss_no + loss_tw_no
+                loss += loss_cls
+            if with_caption:
+                loss_caption = criterion_caption(seq_probs, true_captions[:, 1:], true_captions_mask[:, 1:])
+                loss += loss_caption*0.01
+
+                clip_loss_tmp = [float(ii) for ii in tfs_str]
+                clip_loss_gt = torch.FloatTensor(clip_loss_tmp).cuda()
+
+                clip_probs_sqz = torch.squeeze(clip_probs)
+                loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt) * 100
+                print('Clip gt:\t', clip_loss_gt)
+                print('Clip pred:\t', clip_probs_sqz)
+                # loss += loss_clip*0.01
+                loss += loss_clip
+
+        batch_iter += 1
+
+        if batch_iter >= train_batch_size:
+            batch_iter = 0
+            loss = loss / train_batch_size
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if iteration % 20 == 0:
+                print('Epoch: ', epoch, ' Iter: ', iteration, ' Loss: ', loss, ' FS Loss: ', loss_final_score, end="")
+                if with_dive_classification:
+                    print(' Cls Loss: ', loss_cls, end="")
+                if with_caption:
+                    print(' Cap Loss: ', loss_caption, end="")
+                    print(' Clip Loss: ', loss_clip, end="")
+                print(' ')
+            iteration += 1
+
+            d = dict()
+            d['epoch'] = epoch
+            d['iter'] = iteration-1
+            d['loss'] = loss.item()
+            d['loss_fs'] = loss_final_score.item()
+            if with_dive_classification:
+                d['loss_cls'] = loss_cls.item()
+            if with_caption:
+                d['loss_cap'] = loss_caption.item()
+                d['loss_clip'] = loss_clip.item()
+            
+            loss = 0
 
         return d
 
@@ -282,6 +272,8 @@ def test_phase(test_dataloader):
 
 
 def main():
+    train_batch_size_per_batch = 3
+
     parameters_2_optimize = (list(model_CNN.parameters()) + list(model_my_fc6.parameters()) +
                            list(model_score_regressor.parameters()))
     parameters_2_optimize_named = (list(model_CNN.named_parameters()) + list(model_my_fc6.named_parameters()) +
@@ -299,7 +291,7 @@ def main():
     #save string
     ckpt_str = f'{load_ckpt:02d}'
 
-    optimizer = optim.Adam(parameters_2_optimize, lr=0.00005)
+    optimizer = optim.Adam(parameters_2_optimize, lr=base_learning_rate)
     if load_ckpt > -1:
         filesave = ckpt_dir + 'optimizer_' + ckpt_str + '.pth';
         optimizer.load_state_dict(torch.load(filesave))
@@ -320,7 +312,7 @@ def main():
 
     train_dataset = VideoDataset('train')
     test_dataset = VideoDataset('test')
-    train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size_per_batch, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=False)
     print('Length of train loader: ', len(train_dataloader))
     print('Length of test loader: ', len(test_dataloader))
@@ -336,7 +328,7 @@ def main():
     rho_best = 0
 
     # actual training, testing loops
-    for epoch in range(load_ckpt+1, 1000):
+    for epoch in range(load_ckpt+1, max_epochs):
         # saving_dir = '...'
         print('-------------------------------------------------------------------------------------------------------')
         for param_group in optimizer.param_groups:
