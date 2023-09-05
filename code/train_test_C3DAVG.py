@@ -134,8 +134,6 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
 
                 clip_probs_sqz = torch.squeeze(clip_probs)
                 loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt) * 100
-                print('Clip gt:\t', clip_loss_gt)
-                print('Clip pred:\t', clip_probs_sqz)
                 # loss += loss_clip*0.01
                 loss += loss_clip
 
@@ -156,6 +154,8 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
                 if with_caption:
                     print(' Cap Loss: ', loss_caption, end="")
                     print(' Clip Loss: ', loss_clip, end="")
+                    print(' Clip gt:\t', clip_loss_gt)
+                    print(' Clip pred:\t', clip_probs_sqz)
                 print(' ')
             iteration += 1
 
