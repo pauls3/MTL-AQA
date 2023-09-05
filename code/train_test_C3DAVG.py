@@ -159,20 +159,20 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
                 print(' ')
             iteration += 1
 
-            d = dict()
-            d['epoch'] = epoch
-            d['iter'] = iteration-1
-            d['loss'] = loss.item()
-            d['loss_fs'] = loss_final_score.item()
-            if with_dive_classification:
-                d['loss_cls'] = loss_cls.item()
-            if with_caption:
-                d['loss_cap'] = loss_caption.item()
-                d['loss_clip'] = loss_clip.item()
+            # d = dict()
+            # d['epoch'] = epoch
+            # d['iter'] = iteration-1
+            # d['loss'] = loss.item()
+            # d['loss_fs'] = loss_final_score.item()
+            # if with_dive_classification:
+            #     d['loss_cls'] = loss_cls.item()
+            # if with_caption:
+            #     d['loss_cap'] = loss_caption.item()
+            #     d['loss_clip'] = loss_clip.item()
             
             loss = 0
 
-            return d
+            # return d
 
 
 def test_phase(test_dataloader):
@@ -259,18 +259,18 @@ def test_phase(test_dataloader):
         #print('True scores: ', true_scores)
         print('Correlation: ', rho, '   |   MSE: ', mse)
 
-        d = dict()
-        d['rho'] = rho
-        d['mse'] = mse
-        d['acc_pos'] = position_accu
-        d['acc_arm'] = armstand_accu
-        d['acc_rot'] = rot_type_accu
-        d['acc_ss'] = ss_no_accu
-        d['acc_tw'] = tw_no_accu
+        # d = dict()
+        # d['rho'] = rho
+        # d['mse'] = mse
+        # d['acc_pos'] = position_accu
+        # d['acc_arm'] = armstand_accu
+        # d['acc_rot'] = rot_type_accu
+        # d['acc_ss'] = ss_no_accu
+        # d['acc_tw'] = tw_no_accu
         #d['s_pred'] = pred_scores
         #d['s_true'] = true_scores
 
-        return d
+        # return d
 
 
 def main():
@@ -336,14 +336,14 @@ def main():
         for param_group in optimizer.param_groups:
             print('Current learning rate: ', param_group['lr'])
 
-        dtrain = train_phase(train_dataloader, optimizer, criterions, epoch)
-        dtest = test_phase(test_dataloader)
+        train_phase(train_dataloader, optimizer, criterions, epoch)
+        test_phase(test_dataloader)
 
         #save stats each epoch
-        with open(file_train,'a') as data_train:
-            data_train.write(str(dtrain)+'\n')
-        with open(file_test, 'a') as data_test:
-            data_test.write(str(dtest)+'\n')
+        # with open(file_train,'a') as data_train:
+        #     data_train.write(str(dtrain)+'\n')
+        # with open(file_test, 'a') as data_test:
+        #     data_test.write(str(dtest)+'\n')
 
         if (epoch+1) % model_ckpt_interval == 0: # save models occasionally
             save_model(model_CNN, 'model_CNN', epoch, ckpt_dir)
