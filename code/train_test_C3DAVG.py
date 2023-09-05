@@ -259,18 +259,18 @@ def test_phase(test_dataloader):
         #print('True scores: ', true_scores)
         print('Correlation: ', rho, '   |   MSE: ', mse)
 
-        # d = dict()
-        # d['rho'] = rho
-        # d['mse'] = mse
-        # d['acc_pos'] = position_accu
-        # d['acc_arm'] = armstand_accu
-        # d['acc_rot'] = rot_type_accu
-        # d['acc_ss'] = ss_no_accu
-        # d['acc_tw'] = tw_no_accu
-        #d['s_pred'] = pred_scores
-        #d['s_true'] = true_scores
+        d = dict()
+        d['rho'] = rho
+        d['mse'] = mse
+        d['acc_pos'] = position_accu
+        d['acc_arm'] = armstand_accu
+        d['acc_rot'] = rot_type_accu
+        d['acc_ss'] = ss_no_accu
+        d['acc_tw'] = tw_no_accu
+        d['s_pred'] = pred_scores
+        d['s_true'] = true_scores
 
-        # return d
+        return d
 
 
 def main():
@@ -337,7 +337,7 @@ def main():
             print('Current learning rate: ', param_group['lr'])
 
         train_phase(train_dataloader, optimizer, criterions, epoch)
-        test_phase(test_dataloader)
+        dtest = test_phase(test_dataloader)
 
         #save stats each epoch
         # with open(file_train,'a') as data_train:
