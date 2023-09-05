@@ -147,7 +147,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             loss.backward()
             optimizer.step()
 
-            if iteration % 20 == 0:
+            if iteration % 3 == 0:
                 print('Epoch: ', epoch, ' Iter: ', iteration, ' Loss: ', loss, ' FS Loss: ', loss_final_score, end="")
                 if with_dive_classification:
                     print(' Cls Loss: ', loss_cls, end="")
