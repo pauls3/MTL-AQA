@@ -74,7 +74,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             tfs_list = true_final_score_temp.tolist()
 
             tfs_str = ['{:.1f}'.format(ii) for ii in tfs_list]
-            print(tfs_str)
+            # print(tfs_str)
             true_final_score_clip = CLIP.tokenize(tfs_str).cuda()
 
             if with_dive_classification:
