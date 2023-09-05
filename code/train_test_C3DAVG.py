@@ -170,7 +170,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
             
             loss = 0
 
-        return d
+            return d
 
 
 def test_phase(test_dataloader):
