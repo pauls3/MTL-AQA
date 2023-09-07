@@ -133,7 +133,7 @@ def train_phase(train_dataloader, optimizer, criterions, epoch):
                 clip_loss_gt = torch.FloatTensor(clip_loss_tmp).cuda()
 
                 clip_probs_sqz = torch.squeeze(clip_probs)
-                loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt) * 100
+                loss_clip = criterion_clip(clip_probs_sqz, clip_loss_gt) * 1000
                 # loss += loss_clip*0.01
                 loss += loss_clip
 

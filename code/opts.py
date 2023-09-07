@@ -67,6 +67,6 @@ model_ckpt_interval = 100 # in epochs
 ckpt_dir = 'train_full_450/'
 load_ckpt = -1
 
-base_learning_rate = 0.0001
+base_learning_rate = 0.00005
 
 temporal_stride = 16
